@@ -1,0 +1,38 @@
+name: CI
+
+# Safe triggers only: `pull_request` runs fork code WITHOUT secrets and with a read-only token.
+# Never use `pull_request_target` or `workflow_run` here.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.10", "3.12", "3.13"]
+    steps:
+      # Actions are pinned to full commit SHAs (tags can be moved by their owners).
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Unit tests (stdlib only, no dependencies to install)
+        run: python -m unittest discover -s tests -v
+      - name: Build the graph of this repository
+        run: python -m minga_graph build . --no-html
+      - name: No hard-coded secrets in the repository
+        run: python -m minga_graph secrets .
