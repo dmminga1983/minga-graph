@@ -1,0 +1,8 @@
+# Every file in this repository is owned by the maintainer.
+# With the "main-protection" ruleset, no change reaches main without the owner's approval.
+*                   @dmminga1983
+
+# Extra-sensitive paths (listed explicitly so the rule survives future edits above)
+/.github/           @dmminga1983
+/pyproject.toml     @dmminga1983
+/minga_graph/       @dmminga1983
